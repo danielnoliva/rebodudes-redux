@@ -1,16 +1,17 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import CardList from "../components/CardList";
 import SearchBox from "../components/SearchBox";
 import "./App.css";
 import Scroll from "../components/Scroll";
 import ErrorBoundary from "../components/ErrorBoundary";
+import { setSearchField } from "../actions";
 
 export class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      robots: [],
-      searchField: ""
+      robots: []
     };
     this.onSearchChange = this.onSearchChange.bind(this);
   }
@@ -21,18 +22,23 @@ export class App extends Component {
       .then(users => this.setState({ robots: users }));
   }
 
-  onSearchChange(event) {
-    this.setState({ searchField: event.target.value });
+  onSearchChange(e) {
+    const text = e.target.value;
+    this.props.dispatch(setSearchField(text));
   }
 
   render() {
-    const { robots, searchField } = this.state;
-    const filteredRobots = robots.filter(robot =>
-      robot.name.toLowerCase().includes(searchField.toLowerCase())
-    );
+    const { robots } = this.state;
+    const { searchField } = this.props;
+    const filteredRobots = robots.filter(robot => {
+      return robot.name.toLowerCase().includes(searchField.toLowerCase());
+    });
+
     return (
       <div className="tc">
-        <h1 className="f1">{robots.length ? "RoboDudes" : "Loading"}</h1>
+        <h1 className="f1">
+          {this.state.robots.length ? "RoboDudes" : "Loading"}
+        </h1>
         <SearchBox searchChange={this.onSearchChange} />
         <Scroll>
           <ErrorBoundary>
@@ -44,4 +50,8 @@ export class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  searchField: state.searchField
+});
+
+export default connect(mapStateToProps)(App);
