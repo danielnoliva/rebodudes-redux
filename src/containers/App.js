@@ -13,7 +13,6 @@ export class App extends Component {
     this.state = {
       robots: []
     };
-    this.onSearchChange = this.onSearchChange.bind(this);
   }
 
   componentDidMount() {
@@ -22,14 +21,9 @@ export class App extends Component {
       .then(users => this.setState({ robots: users }));
   }
 
-  onSearchChange(e) {
-    const text = e.target.value;
-    this.props.dispatch(setSearchField(text));
-  }
-
   render() {
     const { robots } = this.state;
-    const { searchField } = this.props;
+    const { searchField, onSearchChange } = this.props;
     const filteredRobots = robots.filter(robot => {
       return robot.name.toLowerCase().includes(searchField.toLowerCase());
     });
@@ -39,7 +33,7 @@ export class App extends Component {
         <h1 className="f1">
           {this.state.robots.length ? "RoboDudes" : "Loading"}
         </h1>
-        <SearchBox searchChange={this.onSearchChange} />
+        <SearchBox searchChange={onSearchChange} />
         <Scroll>
           <ErrorBoundary>
             <CardList robots={filteredRobots} />
@@ -54,4 +48,11 @@ const mapStateToProps = state => ({
   searchField: state.searchField
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = dispatch => ({
+  onSearchChange: e => dispatch(setSearchField(e.target.value))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
